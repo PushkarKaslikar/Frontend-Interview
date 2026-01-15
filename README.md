@@ -48,9 +48,6 @@ You are required to build a blog application with the following features:
 - ✅ **shadcn/ui** - For UI components
   - 📚 [Documentation](https://ui.shadcn.com/)
 
-### Useful Resources
-- **Placeholder Images** - [Placehold.co](https://placehold.co/) - For generating placeholder images
-
 ## UI Reference
 
 Here's a reference design for the blog application layout:
