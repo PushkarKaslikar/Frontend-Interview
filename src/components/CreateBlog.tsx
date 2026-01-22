@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { motion } from "framer-motion"
+import { X, ArrowLeft } from "lucide-react"
 
 interface CreateBlogProps {
     onSuccess: () => void;
@@ -39,95 +40,84 @@ export function CreateBlog({ onSuccess, onCancel }: CreateBlogProps) {
     }
 
     return (
-        <div className="h-full overflow-y-auto bg-white dark:bg-neutral-950">
-            <div className="max-w-3xl mx-auto px-6 py-12">
-                <div className="mb-10">
-                    <h1 className="text-3xl font-bold tracking-tight mb-2">Write a Story</h1>
-                    <p className="text-neutral-500">Share your thoughts with the world.</p>
+        <motion.div
+            className="fixed inset-0 z-50 bg-white dark:bg-black overflow-y-auto"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+        >
+            <div className="max-w-3xl mx-auto px-6 py-12 md:py-20 lg:py-28">
+                {/* Navigation / Header */}
+                <div className="flex items-center justify-between mb-16">
+                    <button
+                        onClick={onCancel}
+                        className="group flex items-center gap-2 text-neutral-500 hover:text-black dark:text-neutral-400 dark:hover:text-white transition-colors"
+                    >
+                        <div className="w-10 h-10 rounded-full border border-neutral-200 dark:border-neutral-800 flex items-center justify-center group-hover:border-black dark:group-hover:border-white transition-colors">
+                            <ArrowLeft className="w-5 h-5" />
+                        </div>
+                        <span className="font-medium">Cancel</span>
+                    </button>
+
+                    <button
+                        onClick={() => mutation.mutate({
+                            ...formData,
+                            category: formData.category.split(',').map(c => c.trim().toUpperCase()),
+                            date: new Date().toISOString(),
+                        })}
+                        disabled={mutation.isPending}
+                        className="bg-black text-white dark:bg-white dark:text-black px-8 py-3 rounded-full font-bold text-lg hover:scale-105 active:scale-95 transition-transform disabled:opacity-50"
+                    >
+                        {mutation.isPending ? 'Publishing...' : 'Publish Story'}
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="space-y-4">
+                <div className="space-y-12">
+                    <div className="relative">
+                        <Input
+                            placeholder="Title"
+                            required
+                            value={formData.title}
+                            onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                            className="text-5xl md:text-7xl font-black border-0 border-l-4 border-transparent focus:border-black dark:focus:border-white rounded-none px-6 py-4 h-auto placeholder:text-neutral-200 dark:placeholder:text-neutral-800 focus-visible:ring-0 transition-colors bg-transparent"
+                        />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 px-6">
                         <div className="space-y-2">
-                            <Label htmlFor="title" className="text-neutral-500 uppercase text-xs tracking-wider">Title</Label>
+                            <Label className="uppercase text-xs font-bold tracking-widest text-neutral-400">Category</Label>
                             <Input
-                                id="title"
-                                placeholder="Enter a descriptive title"
+                                placeholder="TECHNOLOGY"
                                 required
-                                value={formData.title}
-                                onChange={e => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                className="text-2xl font-bold border-0 border-b border-neutral-200 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black placeholder:font-bold placeholder:text-neutral-300 h-14"
+                                value={formData.category}
+                                onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                                className="border-0 border-b border-neutral-200 dark:border-neutral-800 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white font-mono"
                             />
                         </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2">
-                                <Label htmlFor="category" className="text-neutral-500 uppercase text-xs tracking-wider">Category</Label>
-                                <Input
-                                    id="category"
-                                    placeholder="e.g. TECHNOLOGY"
-                                    required
-                                    value={formData.category}
-                                    onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
-                                    className="border-0 border-b border-neutral-200 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black h-10"
-                                />
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label htmlFor="coverImage" className="text-neutral-500 uppercase text-xs tracking-wider">Cover Image URL</Label>
-                                <Input
-                                    id="coverImage"
-                                    placeholder="https://..."
-                                    value={formData.coverImage}
-                                    onChange={e => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
-                                    className="border-0 border-b border-neutral-200 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black h-10"
-                                />
-                            </div>
-                        </div>
-
                         <div className="space-y-2">
-                            <Label htmlFor="description" className="text-neutral-500 uppercase text-xs tracking-wider">Short Description</Label>
-                            <Textarea
-                                id="description"
-                                placeholder="What is this story about?"
-                                required
-                                value={formData.description}
-                                onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                                className="resize-none border-0 border-b border-neutral-200 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black min-h-[80px]"
-                            />
-                        </div>
-
-                        <div className="space-y-2 pt-4">
-                            <Label htmlFor="content" className="text-neutral-500 uppercase text-xs tracking-wider">Story</Label>
-                            <Textarea
-                                id="content"
-                                placeholder="Tell your story..."
-                                className="min-h-[400px] font-serif text-lg border-0 focus-visible:ring-0 p-0 resize-y"
-                                required
-                                value={formData.content}
-                                onChange={e => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                            <Label className="uppercase text-xs font-bold tracking-widest text-neutral-400">Cover Image URL</Label>
+                            <Input
+                                placeholder="https://..."
+                                value={formData.coverImage}
+                                onChange={e => setFormData(prev => ({ ...prev, coverImage: e.target.value }))}
+                                className="border-0 border-b border-neutral-200 dark:border-neutral-800 rounded-none px-0 focus-visible:ring-0 focus-visible:border-black dark:focus-visible:border-white font-mono"
                             />
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-end gap-4 pt-6 border-t border-neutral-100">
-                        <button
-                            type="button"
-                            onClick={onCancel}
-                            className="text-sm font-medium text-neutral-500 hover:text-black transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={mutation.isPending}
-                            className="bg-black text-white dark:bg-white dark:text-black px-6 py-2 rounded-full text-sm font-medium hover:opacity-80 transition-opacity disabled:opacity-50"
-                        >
-                            {mutation.isPending ? 'Publishing...' : 'Publish'}
-                        </button>
+                    <div className="px-6">
+                        <Textarea
+                            placeholder="Tell your story..."
+                            className="min-h-[50vh] text-xl md:text-2xl leading-relaxed text-neutral-800 dark:text-neutral-200 border-0 focus-visible:ring-0 p-0 resize-none font-serif placeholder:font-sans placeholder:text-neutral-300"
+                            required
+                            value={formData.content}
+                            onChange={e => setFormData(prev => ({ ...prev, content: e.target.value }))}
+                        />
                     </div>
-                </form>
+                </div>
+
             </div>
-        </div>
+        </motion.div>
     )
 }
